@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Price Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 p-6 rounded-lg h-screen flex flex-col">
+    <h1 class="text-center text-4xl font-bold text-yellow-400 mb-8">Amazon Product - Price Tracker</h1>
+    
+    <form id="product-form" method="POST" action="/track" class="flex-grow">
+        <div id="product-list" class="mb-4">
+            <div class="flex items-center bg-gray-800 p-4 rounded-lg mb-2 shadow-lg product-item">
+                <input type="text" name="ProductID[]" placeholder="Product ID (e.g., B0D841Z76B)" required class="flex-grow p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-400 text-black" />
+                <input type="text" name="ProductName[]" placeholder="Product Name" required class="flex-grow p-2 mx-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-400 text-black" />
+                <button type="button" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-transform hover:scale-105">Remove</button>
+            </div>
+        </div>
+        <div class="flex justify-center mb-4">
+            <!-- Swapping Track Prices button and Toggle Dark/Light Mode button -->
+            <button type="submit" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg mx-1 transition-transform hover:scale-105">Track Prices</button>
+            <button type="button" id="toggle-theme" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 px-4 py-2 rounded-lg mx-1 transition-transform hover:scale-105">Toggle Dark/Light Mode</button>
+            <button type="button" id="add-product" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg mx-1 transition-transform hover:scale-105">Add Product</button>
+        </div>
+    </form>
+
+    <div class="chart-container h-64 mt-4">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <script>
+        document.getElementById('add-product').onclick = function() {
+            const productList = document.getElementById('product-list');
+            const newProductItem = document.createElement('div');
+            newProductItem.className = 'flex items-center bg-gray-800 p-4 rounded-lg mb-2 shadow-lg product-item';
+            newProductItem.innerHTML = `
+                <input type="text" name="ProductID[]" placeholder="Product ID (e.g., B0D841Z76B)" required class="flex-grow p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-400 text-black" />
+                <input type="text" name="ProductName[]" placeholder="Product Name" required class="flex-grow p-2 mx-2 rounded-lg border border-gray-600 focus:outline-none focus:border-yellow-400 text-black" />
+                <button type="button" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-transform hover:scale-105">Remove</button>
+            `;
+            productList.appendChild(newProductItem);
+        };
+
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('bg-red-600')) {
+                const productItem = event.target.closest('.flex');
+                if (productItem) {
+                    productItem.remove();
+                }
+            }
+        });
+
+        const toggleButton = document.getElementById('toggle-theme');
+        toggleButton.onclick = function() {
+            const productItems = document.querySelectorAll('.product-item');
+            document.body.classList.toggle('bg-gray-100');
+            document.body.classList.toggle('text-gray-900');
+            document.body.classList.toggle('bg-gray-900');
+            document.body.classList.toggle('text-gray-100');
+
+            productItems.forEach(item => {
+                item.classList.toggle('bg-gray-800');
+                item.classList.toggle('bg-gray-200'); // Light mode background color
+            });
+        };
+
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                datasets: [{
+                    label: 'Product Price History',
+                    data: [12, 19, 3, 5, 2, 3, 8],
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
